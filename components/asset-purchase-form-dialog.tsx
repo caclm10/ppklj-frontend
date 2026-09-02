@@ -158,11 +158,11 @@ export function AssetPurchaseFormDialog({
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <PlusCircle className="size-5 text-primary" />
-                        Catat Belanja Pemeliharaan / Garansi
+                        Catat Belanja
                     </DialogTitle>
                     <DialogDescription>
-                        Tautkan kontrak pemeliharaan berkala atau perpanjangan
-                        garansi ke aset ini.
+                        Tautkan paket belanja atau perpanjangan garansi ke aset
+                        ini.
                     </DialogDescription>
                 </DialogHeader>
 

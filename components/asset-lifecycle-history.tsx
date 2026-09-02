@@ -123,7 +123,7 @@ export function AssetLifecycleHistory({
                     className="w-full sm:w-auto"
                 >
                     <Plus data-icon="inline-start" className="size-4" />
-                    Catat Belanja / Pemeliharaan
+                    Catat Belanja
                 </Button>
             </CardHeader>
 
@@ -281,9 +281,8 @@ export function AssetLifecycleHistory({
                                                 tercatat
                                             </p>
                                             <p className="text-[11px] text-muted-foreground">
-                                                Klik &quot;Catat Belanja /
-                                                Pemeliharaan&quot; untuk
-                                                menautkan paket belanja.
+                                                Klik &quot;Catat Belanja&quot;
+                                                untuk menautkan paket belanja.
                                             </p>
                                         </div>
                                     </TableCell>

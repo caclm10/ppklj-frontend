@@ -12,7 +12,6 @@ import {
     ShieldCheck,
     Globe,
     Cpu,
-    Truck,
 } from "lucide-react";
 
 import type { NetworkAsset } from "@/lib/types";
@@ -143,14 +142,6 @@ export function NetworkAssetDetailView({
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" asChild>
-                        <Link
-                            href={`/rmas/new?asset_id=${networkAsset.asset_id}`}
-                        >
-                            <Truck className="mr-2 size-4" />
-                            Ajukan RMA / Servis
-                        </Link>
-                    </Button>
                     <Button asChild>
                         <Link href={`/network-assets/${networkAsset.id}/edit`}>
                             <Pencil className="mr-2 size-4" />
