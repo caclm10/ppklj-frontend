@@ -1,0 +1,51 @@
+name: Build Frontend Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: podman
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Check Podman
+        run: |
+          podman --version
+
+      - name: Check Containerfile
+        run: |
+          ls -la
+          test -f Containerfile
+
+      - name: Login to Forgejo Registry
+        run: |
+          echo "${{ secrets.REGISTRY_TOKEN }}" | \
+            podman login main-pc-1.taildccbd1.ts.net:9001 \
+            --username "${{ secrets.REGISTRY_USERNAME }}" \
+            --password-stdin
+
+      - name: Build image
+        run: |
+          SHORT_SHA=$(echo "${{ forgejo.sha }}" | cut -c1-7)
+
+          podman build \
+            --build-arg NEXT_PUBLIC_API_URL="${{ vars.NEXT_PUBLIC_API_URL }}" \
+            -f Containerfile \
+            -t main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:dev \
+            -t main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:$SHORT_SHA \
+            .
+
+      - name: Push image
+        run: |
+          SHORT_SHA=$(echo "${{ forgejo.sha }}" | cut -c1-7)
+
+          podman push \
+            main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:dev
+
+          podman push \
+            main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:$SHORT_SHA
