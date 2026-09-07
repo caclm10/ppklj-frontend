@@ -374,8 +374,8 @@ export function NetworkAssetsClient() {
                         Perangkat Jaringan
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                        Kelola inventaris Switch, Router, Access Point, dan
-                        Firewall di seluruh kantor.
+                        Kelola inventaris Access Point, Switch, dan Controller
+                        di seluruh kantor.
                     </p>
                 </div>
                 <Button asChild className="w-full sm:w-auto">

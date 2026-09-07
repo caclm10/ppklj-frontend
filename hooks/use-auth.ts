@@ -23,7 +23,7 @@ export function useAuth() {
         async (payload: LoginPayload) => {
             const response = await loginFetcher("/api/login", { arg: payload });
             if (response.success && response.data?.user) {
-                await mutate(response.data.user, false);
+                await mutate(response.data.user, { revalidate: false });
             }
             return response;
         },
@@ -34,15 +34,16 @@ export function useAuth() {
         try {
             await logoutFetcher("/api/logout");
         } finally {
-            await mutate(undefined, false);
-            router.push("/login");
-            router.refresh();
+            await mutate(undefined, { revalidate: false });
+            window.location.href = "/login";
         }
-    }, [mutate, router]);
+    }, [mutate]);
+
+    const currentUser = user && typeof user === "object" && "id" in user ? user : null;
 
     return {
-        user: error ? null : (user ?? null),
-        isAuthenticated: Boolean(user && !error),
+        user: currentUser,
+        isAuthenticated: Boolean(currentUser),
         isLoading,
         login,
         logout,

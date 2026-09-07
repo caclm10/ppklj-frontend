@@ -29,6 +29,7 @@ import {
 
 import type { Asset } from "@/lib/types";
 import { fetcher, mutationFetcher, ApiError } from "@/lib/api";
+import { formatDateIndo } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -190,8 +191,8 @@ export function LicensesClient() {
                                 >
                                     Kadaluarsa
                                 </Badge>
-                                <span className="font-mono text-xs text-muted-foreground">
-                                    ({endDateStr})
+                                <span className="text-xs text-muted-foreground">
+                                    ({formatDateIndo(endDateStr)})
                                 </span>
                             </div>
                         );
@@ -206,8 +207,8 @@ export function LicensesClient() {
                                 >
                                     {diffDays} hari lagi
                                 </Badge>
-                                <span className="font-mono text-xs text-muted-foreground">
-                                    ({endDateStr})
+                                <span className="text-xs text-muted-foreground">
+                                    ({formatDateIndo(endDateStr)})
                                 </span>
                             </div>
                         );
@@ -221,8 +222,8 @@ export function LicensesClient() {
                             >
                                 Aktif
                             </Badge>
-                            <span className="font-mono text-xs text-muted-foreground">
-                                ({endDateStr})
+                            <span className="text-xs text-muted-foreground">
+                                ({formatDateIndo(endDateStr)})
                             </span>
                         </div>
                     );

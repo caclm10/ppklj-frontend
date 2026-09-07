@@ -15,14 +15,16 @@ import {
     Server,
 } from "lucide-react";
 
-import type {
-    NetworkAsset,
-    NetworkAssetPayload,
-    NetworkAssetStatus,
-    Office,
-    Purchase,
-    Feature,
-    Asset,
+import {
+    type NetworkAsset,
+    type NetworkAssetPayload,
+    type NetworkAssetStatus,
+    type Office,
+    type Purchase,
+    type Feature,
+    type Asset,
+    type NetworkDeviceType,
+    NETWORK_DEVICE_TYPES,
 } from "@/lib/types";
 import { fetcher, mutationFetcher, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -95,7 +97,7 @@ export function NetworkAssetForm({ assetId }: NetworkAssetFormProps) {
             device_name: networkAssetToEdit?.asset?.name ?? "",
             brand: networkAssetToEdit?.brand ?? "",
             model: networkAssetToEdit?.model ?? "",
-            type: networkAssetToEdit?.type ?? "Switch Access",
+            type: networkAssetToEdit?.type ?? "Access Point",
             status: networkAssetToEdit?.status ?? "aktif",
             office_id: networkAssetToEdit?.office_id ?? null,
             ip: networkAssetToEdit?.ip ?? "",
@@ -198,18 +200,18 @@ export function NetworkAssetForm({ assetId }: NetworkAssetFormProps) {
                     throw new Error("Gagal mendaftarkan data aset induk.");
                 }
 
-                // 2. Optionally record purchase history
                 if (data.purchase_id) {
                     try {
                         await mutationFetcher("/api/asset-purchases", "POST", {
-                            asset_id: createdAsset.id,
                             purchase_id: Number(data.purchase_id),
+                            name: `${data.brand} ${data.model}`.trim() || "Pengadaan Perangkat Jaringan",
                             price: data.unit_price
                                 ? Number(data.unit_price)
                                 : null,
                             quantity: 1,
                             end_date: data.end_date || null,
                             notes: "Pengadaan awal perangkat jaringan",
+                            asset_ids: [createdAsset.id],
                         });
                     } catch {
                         // Non-blocking
@@ -469,15 +471,60 @@ export function NetworkAssetForm({ assetId }: NetworkAssetFormProps) {
                                     <FieldLabel htmlFor="device-type">
                                         Kategori / Tipe
                                     </FieldLabel>
-                                    <Input
-                                        id="device-type"
-                                        placeholder="Contoh: Switch Access, Router, AP"
-                                        disabled={isSubmitting}
-                                        aria-invalid={Boolean(errors.type)}
-                                        {...register("type", {
+                                    <Controller
+                                        name="type"
+                                        control={control}
+                                        rules={{
                                             required:
-                                                "Kategori tipe wajib diisi",
-                                        })}
+                                                "Kategori tipe wajib dipilih",
+                                        }}
+                                        render={({ field }) => {
+                                            const isCustom =
+                                                field.value &&
+                                                !NETWORK_DEVICE_TYPES.includes(
+                                                    field.value as NetworkDeviceType
+                                                );
+                                            return (
+                                                <Select
+                                                    value={
+                                                        field.value ||
+                                                        "Access Point"
+                                                    }
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                    disabled={isSubmitting}
+                                                >
+                                                    <SelectTrigger
+                                                        id="device-type"
+                                                        className="w-full"
+                                                    >
+                                                        <SelectValue placeholder="Pilih Tipe Perangkat" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {NETWORK_DEVICE_TYPES.map(
+                                                            (t) => (
+                                                                <SelectItem
+                                                                    key={t}
+                                                                    value={t}
+                                                                >
+                                                                    {t}
+                                                                </SelectItem>
+                                                            )
+                                                        )}
+                                                        {isCustom && (
+                                                            <SelectItem
+                                                                value={
+                                                                    field.value
+                                                                }
+                                                            >
+                                                                {field.value}
+                                                            </SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            );
+                                        }}
                                     />
                                     {errors.type?.message && (
                                         <FieldError

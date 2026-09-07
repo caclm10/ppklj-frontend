@@ -120,14 +120,15 @@ export function LicenseForm({ licenseId }: LicenseFormProps) {
                 if (createdAsset?.id && data.purchase_id) {
                     try {
                         await mutationFetcher("/api/asset-purchases", "POST", {
-                            asset_id: createdAsset.id,
                             purchase_id: Number(data.purchase_id),
+                            name: data.name.trim() || "Pengadaan Lisensi Software",
                             price: data.unit_price
                                 ? Number(data.unit_price)
                                 : null,
                             quantity: 1,
                             end_date: data.end_date || null,
                             notes: "Pengadaan lisensi software",
+                            asset_ids: [createdAsset.id],
                         });
                     } catch {
                         // Non-blocking

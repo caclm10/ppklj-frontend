@@ -61,6 +61,7 @@ export function AssetPurchaseFormDialog({
         formState: { errors },
     } = useForm<AssetPurchasePayload>({
         values: {
+            name: "",
             asset_id: assetId,
             purchase_id: 0,
             price: null,
@@ -96,13 +97,14 @@ export function AssetPurchaseFormDialog({
 
         try {
             await mutationFetcher("/api/asset-purchases", "POST", {
-                asset_id: assetId,
+                name: data.name?.trim() || "Alokasi Belanja Aset",
                 purchase_id: Number(data.purchase_id),
                 price: data.price ? Number(data.price) : null,
                 quantity: 1,
                 start_date: data.start_date || null,
                 end_date: data.end_date || null,
                 notes: data.notes?.trim() || null,
+                asset_ids: [assetId],
             });
 
             onSuccess();
@@ -237,6 +239,21 @@ export function AssetPurchaseFormDialog({
                                     ]}
                                 />
                             )}
+                        </Field>
+
+                        <Field data-invalid={Boolean(errors.name)}>
+                            <FieldLabel htmlFor="history-name">
+                                Nama Paket Belanja{" "}
+                                <span className="text-xs font-normal text-muted-foreground">
+                                    (Opsional)
+                                </span>
+                            </FieldLabel>
+                            <Input
+                                id="history-name"
+                                placeholder="Contoh: Pemeliharaan Tahunan atau Pengadaan"
+                                disabled={isSubmitting}
+                                {...register("name")}
+                            />
                         </Field>
 
                         <Field data-invalid={Boolean(errors.price)}>

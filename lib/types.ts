@@ -73,35 +73,51 @@ export interface FeaturePayload {
     name: string;
 }
 
+export type NetworkDeviceType = "Access Point" | "Switch" | "Controller";
+export const NETWORK_DEVICE_TYPES: readonly NetworkDeviceType[] = [
+    "Access Point",
+    "Switch",
+    "Controller",
+] as const;
+
 export type NetworkAssetStatus = "belum_dipasang" | "aktif" | "tidak_aktif";
 
-export interface AssetPurchaseHistory {
+export interface AssetPurchase {
     id: number;
-    asset_id: number;
     purchase_id: number;
+    name: string;
     price?: number | null;
     quantity?: number;
     start_date?: string | null;
     end_date?: string | null;
     notes?: string | null;
+    assets_count?: number;
     created_at?: string;
     updated_at?: string;
     purchase?: Purchase;
+    assets?: Asset[];
+    // Backward compatibility helpers
+    asset_id?: number;
     asset?: Asset;
 }
 
+export type AssetPurchaseHistory = AssetPurchase;
+
 export interface AssetPurchasePayload {
-    asset_id: number;
     purchase_id: number;
+    name?: string;
     price?: number | null;
     quantity?: number;
     start_date?: string | null;
     end_date?: string | null;
     notes?: string | null;
+    asset_ids?: number[];
+    asset_id?: number;
 }
 
 export interface Asset {
     id: number;
+    asset_purchase_id?: number | null;
     category: "jaringan" | "license";
     name: string;
     number: string;
@@ -110,6 +126,8 @@ export interface Asset {
     notes?: string | null;
     created_at?: string;
     updated_at?: string;
+    asset_purchase?: AssetPurchase | null;
+    asset_purchases?: AssetPurchase[];
     purchases?: AssetPurchaseHistory[];
     network_asset?: NetworkAsset;
 }

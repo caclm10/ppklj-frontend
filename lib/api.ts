@@ -1,7 +1,16 @@
 import type { ApiResponse, LoginPayload, LoginResponseData } from "./types";
 
-export const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export function getApiBaseUrl(): string {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+        return process.env.NEXT_PUBLIC_API_URL;
+    }
+    if (typeof window !== "undefined") {
+        return `http://${window.location.hostname}:8000`;
+    }
+    return "http://localhost:8000";
+}
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export class ApiError extends Error {
     status: number;
@@ -28,7 +37,8 @@ export function getCookie(name: string): string | null {
 }
 
 export async function getCsrfCookie(): Promise<void> {
-    await fetch(`${API_BASE_URL}/sanctum/csrf-cookie`, {
+    const baseUrl = getApiBaseUrl();
+    await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
         headers: {
             Accept: "application/json",
         },
@@ -37,7 +47,8 @@ export async function getCsrfCookie(): Promise<void> {
 }
 
 export async function fetcher<T = unknown>(url: string): Promise<T> {
-    const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+    const baseUrl = getApiBaseUrl();
+    const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
     const response = await fetch(fullUrl, {
         headers: {
             Accept: "application/json",
@@ -74,7 +85,8 @@ export async function mutationFetcher<T = unknown>(
         headers["Content-Type"] = "application/json";
     }
 
-    const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+    const baseUrl = getApiBaseUrl();
+    const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
     const response = await fetch(fullUrl, {
         method,
         headers,
@@ -116,7 +128,8 @@ export async function loginFetcher(
         headers["X-XSRF-TOKEN"] = xsrfToken;
     }
 
-    const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+    const baseUrl = getApiBaseUrl();
+    const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
     const response = await fetch(fullUrl, {
         method: "POST",
         headers,
@@ -156,7 +169,8 @@ export async function logoutFetcher(
         headers["X-XSRF-TOKEN"] = xsrfToken;
     }
 
-    const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+    const baseUrl = getApiBaseUrl();
+    const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
     const response = await fetch(fullUrl, {
         method: "POST",
         headers,

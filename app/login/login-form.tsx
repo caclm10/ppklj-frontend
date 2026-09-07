@@ -43,9 +43,9 @@ export function LoginForm() {
 
     React.useEffect(() => {
         if (!isLoading && isAuthenticated) {
-            router.replace("/");
+            window.location.href = "/";
         }
-    }, [isLoading, isAuthenticated, router]);
+    }, [isLoading, isAuthenticated]);
 
     const {
         register,
@@ -104,8 +104,7 @@ export function LoginForm() {
             });
 
             if (response.success) {
-                router.push("/");
-                router.refresh();
+                window.location.href = "/";
             }
         } catch (err: unknown) {
             if (err instanceof ApiError) {

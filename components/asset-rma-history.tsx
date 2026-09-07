@@ -97,9 +97,9 @@ export function AssetRmaHistory({ assetId }: AssetRmaHistoryProps) {
                 </Button>
             </CardHeader>
 
-            <CardContent>
-                <div className="rounded-lg border bg-card">
-                    <Table>
+            <CardContent className="min-w-0">
+                <div className="overflow-hidden rounded-lg border bg-card">
+                    <Table className="min-w-[650px]">
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-12 text-xs font-semibold">

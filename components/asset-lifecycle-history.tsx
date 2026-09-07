@@ -127,7 +127,7 @@ export function AssetLifecycleHistory({
                 </Button>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="min-w-0 space-y-4">
                 {deleteError && (
                     <Alert variant="destructive">
                         <AlertCircle data-icon="inline-start" />
@@ -136,8 +136,8 @@ export function AssetLifecycleHistory({
                     </Alert>
                 )}
 
-                <div className="rounded-lg border">
-                    <Table>
+                <div className="overflow-hidden rounded-lg border">
+                    <Table className="min-w-[650px]">
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-12 text-xs font-semibold">

@@ -203,8 +203,9 @@ export function LicenseDetailView({ licenseId }: LicenseDetailViewProps) {
                     </CardHeader>
                     <CardContent className="pt-0">
                         <span className="text-xs text-muted-foreground">
-                            {license.purchases && license.purchases.length > 0
-                                ? `${license.purchases.length} paket belanja tercatat`
+                            {(license.asset_purchases && license.asset_purchases.length > 0) ||
+                            (license.purchases && license.purchases.length > 0)
+                                ? `${(license.asset_purchases || license.purchases)!.length} alokasi belanja tercatat`
                                 : "Belanja langsung"}
                         </span>
                     </CardContent>
