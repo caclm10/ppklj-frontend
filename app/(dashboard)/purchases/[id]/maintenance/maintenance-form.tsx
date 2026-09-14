@@ -134,6 +134,7 @@ function MaintenanceFormInner({ purchase }: { purchase: Purchase }) {
 
     // Selected assets (set of IDs)
     const [selectedAssetIds, setSelectedAssetIds] = React.useState<number[]>([]);
+    const [licenseQuantity, setLicenseQuantity] = React.useState<number | "">("");
     const [unitSearch, setUnitSearch] = React.useState("");
 
     // Form inputs
@@ -190,6 +191,11 @@ function MaintenanceFormInner({ purchase }: { purchase: Purchase }) {
 
             const assetIds = (pkg.assets || []).map((a) => a.id);
             setSelectedAssetIds(assetIds);
+            setLicenseQuantity(
+                pkg.assets?.some((asset) => asset.category === "license")
+                    ? pkg.quantity || 1
+                    : ""
+            );
 
             // Set start date from package end_date if available
             if (pkg.end_date) {
@@ -278,12 +284,42 @@ function MaintenanceFormInner({ purchase }: { purchase: Purchase }) {
         );
     };
 
+    // Unit quantity for licenses comes from the source package, not asset rows.
+    const selectedLicenseAssets = React.useMemo(
+        () =>
+            candidateAssets.filter(
+                (asset) =>
+                    asset.category === "license" &&
+                    selectedAssetIds.includes(asset.id)
+            ),
+        [candidateAssets, selectedAssetIds]
+    );
+    const licenseSourceQuantity = React.useMemo(() => {
+        if (selectedLicenseAssets.length === 0) return null;
+        if (selectedPackage?.quantity) return selectedPackage.quantity;
+
+        const quantities = selectedLicenseAssets
+            .flatMap((asset) => asset.asset_purchases || [])
+            .map((pkg) => pkg.quantity || 0)
+            .filter((quantity) => quantity > 0);
+
+        return quantities.length > 0 ? Math.min(...quantities) : null;
+    }, [selectedLicenseAssets, selectedPackage]);
+    const isLicenseMaintenance = selectedLicenseAssets.length > 0;
+    const maintenanceQuantity = isLicenseMaintenance
+        ? licenseQuantity === ""
+            ? licenseSourceQuantity ?? ""
+            : licenseQuantity
+        : selectedAssetIds.length;
+
     // Unit price calculation
     const unitPrice = React.useMemo(() => {
         const total = typeof totalPrice === "number" ? totalPrice : 0;
-        const qty = selectedAssetIds.length > 0 ? selectedAssetIds.length : 1;
+        const qty = typeof maintenanceQuantity === "number" && maintenanceQuantity > 0
+            ? maintenanceQuantity
+            : 1;
         return Math.round(total / qty);
-    }, [totalPrice, selectedAssetIds.length]);
+    }, [totalPrice, maintenanceQuantity]);
 
     // Submit handler
     async function handleSubmit(e: React.FormEvent) {
@@ -302,8 +338,24 @@ function MaintenanceFormInner({ purchase }: { purchase: Purchase }) {
             return;
         }
 
+        if (
+            isLicenseMaintenance &&
+            (typeof maintenanceQuantity !== "number" ||
+                !Number.isInteger(maintenanceQuantity) ||
+                maintenanceQuantity < 1 ||
+                (licenseSourceQuantity !== null &&
+                    maintenanceQuantity > licenseSourceQuantity))
+        ) {
+            setServerError(
+                `Jumlah unit lisensi harus berupa bilangan bulat antara 1 dan ${licenseSourceQuantity ?? "quantity paket asal"}.`
+            );
+            return;
+        }
+
         setIsSubmitting(true);
         const numericTotal = typeof totalPrice === "number" ? totalPrice : null;
+        const numericQuantity =
+            typeof maintenanceQuantity === "number" ? maintenanceQuantity : 1;
 
         try {
             await mutationFetcher<AssetPurchase>(
@@ -313,7 +365,7 @@ function MaintenanceFormInner({ purchase }: { purchase: Purchase }) {
                     purchase_id: purchase.id,
                     name: maintenanceName.trim(),
                     price: numericTotal,
-                    quantity: selectedAssetIds.length,
+                    quantity: numericQuantity,
                     start_date: startDate || null,
                     end_date: endDate || null,
                     notes: notes.trim() || null,
@@ -752,11 +804,41 @@ function MaintenanceFormInner({ purchase }: { purchase: Purchase }) {
                                             Rp{" "}
                                             {unitPrice.toLocaleString("id-ID")}
                                         </strong>{" "}
-                                        per unit ({selectedAssetIds.length}{" "}
+                                        per unit ({maintenanceQuantity || 0}{" "}
                                         unit terpilih).
                                     </p>
                                 ) : null}
                             </Field>
+
+                            {isLicenseMaintenance ? (
+                                <Field>
+                                    <FieldLabel htmlFor="license-quantity">
+                                        Jumlah Unit Lisensi yang Diperpanjang / Dipelihara
+                                    </FieldLabel>
+                                    <Input
+                                        id="license-quantity"
+                                        type="number"
+                                        min={1}
+                                        max={licenseSourceQuantity ?? undefined}
+                                        step={1}
+                                        value={
+                                            isLicenseMaintenance
+                                                ? maintenanceQuantity
+                                                : licenseQuantity
+                                        }
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            setLicenseQuantity(
+                                                val === "" ? "" : Number(val)
+                                            );
+                                        }}
+                                        required
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        Nilai harus berupa bilangan bulat antara 1 dan {licenseSourceQuantity ?? "quantity paket asal"}.
+                                    </p>
+                                </Field>
+                            ) : null}
 
                             {/* Periode Garansi Baru */}
                             <div className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-4">
@@ -893,7 +975,7 @@ function MaintenanceFormInner({ purchase }: { purchase: Purchase }) {
                                         }
                                         className="font-mono text-xs"
                                     >
-                                        {selectedAssetIds.length} Unit
+                                        {maintenanceQuantity || 0} Unit
                                     </Badge>
                                 </div>
 

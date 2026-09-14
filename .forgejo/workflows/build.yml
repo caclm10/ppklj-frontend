@@ -25,7 +25,7 @@ jobs:
       - name: Login to Forgejo Registry
         run: |
           echo "${{ secrets.REGISTRY_TOKEN }}" | \
-            podman login main-pc-1.taildccbd1.ts.net:9001 \
+            podman login git.lewinxander.com \
             --username "${{ secrets.REGISTRY_USERNAME }}" \
             --password-stdin
 
@@ -36,8 +36,8 @@ jobs:
           podman build \
             --build-arg NEXT_PUBLIC_API_URL="${{ vars.NEXT_PUBLIC_API_URL }}" \
             -f Containerfile \
-            -t main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:dev \
-            -t main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:$SHORT_SHA \
+            -t git.lewinxander.com/lewin/ppklj-frontend:dev \
+            -t git.lewinxander.com/lewin/ppklj-frontend:$SHORT_SHA \
             .
 
       - name: Push image
@@ -45,7 +45,7 @@ jobs:
           SHORT_SHA=$(echo "${{ forgejo.sha }}" | cut -c1-7)
 
           podman push \
-            main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:dev
+            git.lewinxander.com/lewin/ppklj-frontend:dev
 
           podman push \
-            main-pc-1.taildccbd1.ts.net:9001/lewin/ppklj-frontend:$SHORT_SHA
+            git.lewinxander.com/lewin/ppklj-frontend:$SHORT_SHA
