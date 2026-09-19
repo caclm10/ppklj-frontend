@@ -703,7 +703,7 @@ function LicenseDashboardView({ licenses, loading }: LicenseDashboardProps) {
                             {licenseStats.expired}
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
-                            Layanan dukungan teknis terhenti
+                            Layanan ATS terhenti
                         </p>
                     </CardContent>
                 </Card>
